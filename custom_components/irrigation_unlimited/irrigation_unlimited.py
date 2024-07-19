@@ -388,19 +388,19 @@ class IUBase:
 
     def __init__(self, index: int) -> None:
         # Private variables
-        self._uid: int = uuid.uuid4().int
+        self._d: int = ud.ud4().int
         self._index: int = index
 
     def __eq__(self, other) -> bool:
-        return isinstance(other, IUBase) and self._uid == other._uid
+        return isinstance(other, IUBase) and self._d == other._d
 
     def __hash__(self) -> int:
-        return self._uid
+        return self._d
 
     @property
-    def uid(self) -> int:
+    def d(self) -> int:
         """Return the unique id"""
-        return self._uid
+        return self._d
 
     @property
     def index(self) -> int:
@@ -1229,15 +1229,15 @@ class IUVolume:
             IUVolume.trackers -= 1
 
     def track_volume_change(
-        self, uid: int, action: Callable[[datetime, "IUZone", float, float], None]
+        self, d: int, action: Callable[[datetime, "IUZone", float, float], None]
     ) -> CALLBACK_TYPE:
         """Track the volume"""
 
         def remove_listener() -> None:
-            del self._listeners[uid]
+            del self._listeners[d]
             IUVolume.listeners -= 1
 
-        self._listeners[uid] = action
+        self._listeners[d] = action
         IUVolume.listeners += 1
         return remove_listener
 
@@ -1620,7 +1620,7 @@ class IURunQueue(list[IURun]):
 
     def find_last_index(self, schedule: IUSchedule) -> int:
         """Return the index of the run that finishes last in the queue.
-        This routine does not require the list to be sorted."""
+        This routine does not reqre the list to be sorted."""
         result: int = None
         last_time: datetime = None
         for i, run in enumerate(self):
@@ -1966,7 +1966,7 @@ class IUZone(IUBase):
         self._adjustment = IUAdjustment()
         self._zone_sensor: Entity = None
         self._is_on: bool = False
-        self._sensor_update_required: bool = False
+        self._sensor_update_reqred: bool = False
         self._sensor_last_update: datetime = None
         self._suspend_until: datetime = None
         self._dirty: bool = True
@@ -2368,7 +2368,7 @@ class IUZone(IUBase):
 
     def request_update(self) -> None:
         """Flag the sensor needs an update"""
-        self._sensor_update_required = True
+        self._sensor_update_reqred = True
 
     def update_sensor(self, stime: datetime, do_on: bool) -> bool:
         """Lazy sensor updater"""
@@ -2386,7 +2386,7 @@ class IUZone(IUBase):
                         != dt.as_local(stime).toordinal()
                     ):
                         do_update = True
-                    do_update |= self._sensor_update_required
+                    do_update |= self._sensor_update_reqred
             else:
                 if self._is_on:
                     # If we are running then update sensor according to refresh_interval
@@ -2396,13 +2396,13 @@ class IUZone(IUBase):
                             or stime - self._sensor_last_update
                             >= self._coordinator.refresh_interval
                         )
-                    do_update |= self._sensor_update_required
+                    do_update |= self._sensor_update_reqred
         else:
             do_update = False
 
         if do_update:
             self._zone_sensor.schedule_update_ha_state()
-            self._sensor_update_required = False
+            self._sensor_update_reqred = False
             self._sensor_last_update = stime
             updated = True
 
@@ -2458,7 +2458,7 @@ class IUZoneQueue(IURunQueue):
         )
         return run
 
-    def rebuild_schedule(
+    def rebld_schedule(
         self,
         stime: datetime,
         zones: list[IUZone],
@@ -2614,7 +2614,7 @@ class IUSequenceZone(IUBase):
     def load(self, config: OrderedDict) -> "IUSequenceZone":
         """Load sequence zone data from the configuration"""
 
-        def build_zones() -> None:
+        def bld_zones() -> None:
             """Construct a local list of IUZones"""
             self._zones.clear()
             for zone_id in self._zone_ids:
@@ -2625,10 +2625,10 @@ class IUSequenceZone(IUBase):
         self._delay = wash_td(config.get(CONF_DELAY))
         self._duration = wash_td(config.get(CONF_DURATION))
         self._repeat = config.get(CONF_REPEAT, 1)
-        self._repeat = config.get(CONF_DIVIDE, False)
+        self._divide = config.get(CONF_DIVIDE, False)
         self._enabled = config.get(CONF_ENABLED, self._enabled)
         self._volume = config.get(CONF_VOLUME, self._volume)
-        build_zones()
+        bld_zones()
         return self
 
     def as_dict(
@@ -2865,8 +2865,8 @@ class IUSequenceRun(IUBase):
             return self._sequence.total_time_final(total_time, self)
         return total_time
 
-def build(self, duration_factor: float) -> timedelta:
-    """Build out the sequence. Pre allocate runs and determine
+def bld(self, duration_factor: float) -> timedelta:
+    """Bld out the sequence. Pre allocate runs and determine
     the duration"""
     # pylint: disable=too-many-nested-blocks
     next_run = self._start_time = self._end_time = wash_dt(dt.utcnow())
@@ -3009,7 +3009,7 @@ def build(self, duration_factor: float) -> timedelta:
         """Advance the sequence run. If duration is positive runs will be
         extended if running or delayed if in the future. If duration is
         negative runs will shortened or even skipped. The system will
-        require a full muster as the status of runs, zones and sequences
+        reqre a full muster as the status of runs, zones and sequences
         could have altered."""
 
         def update_run(stime: datetime, duration: timedelta, run: IURun) -> None:
@@ -3227,7 +3227,7 @@ def build(self, duration_factor: float) -> timedelta:
         def enable_trackers(sequence_zone: IUSequenceZone) -> None:
             for zone in sequence_zone.zones:
                 self._volume_trackers.append(
-                    zone.volume.track_volume_change(self.uid, self.update_volume)
+                    zone.volume.track_volume_change(self.d, self.update_volume)
                 )
 
         def remove_trackers() -> None:
@@ -3590,7 +3590,7 @@ class IUSequence(IUBase):
         self._zones: list[IUSequenceZone] = []
         self._adjustment = IUAdjustment()
         self._suspend_until: datetime = None
-        self._sensor_update_required: bool = False
+        self._sensor_update_reqred: bool = False
         self._sensor_last_update: datetime = None
         self._initialised: bool = False
         self._finalised: bool = False
@@ -3931,7 +3931,7 @@ class IUSequence(IUBase):
         return schedule
 
     def find_add_schedule(self, index: int) -> IUSchedule:
-        """Look for and create if required a schedule"""
+        """Look for and create if reqred a schedule"""
         if index >= len(self._schedules):
             return self.add_schedule(IUSchedule(self._hass, self._coordinator, index))
         return self._schedules[index]
@@ -3948,7 +3948,7 @@ class IUSequence(IUBase):
         return None
 
     def find_add_zone(self, index: int) -> IUSequenceZone:
-        """Look for and create if required a zone"""
+        """Look for and create if reqred a zone"""
         result = self.get_zone(index)
         if result is None:
             result = self.add_zone(IUSequenceZone(self._controller, self, index))
@@ -4066,7 +4066,7 @@ class IUSequence(IUBase):
 
     def request_update(self) -> None:
         """Flag the sensor needs an update"""
-        self._sensor_update_required = True
+        self._sensor_update_reqred = True
 
     def update_sensor(self, stime: datetime, do_on: bool) -> bool:
         """Lazy sensor updater"""
@@ -4076,7 +4076,7 @@ class IUSequence(IUBase):
         if self._sequence_sensor is not None:
             if do_on is False:
                 updated |= self._run_queue.update_sensor(stime)
-                do_update = not self.is_on and self._sensor_update_required
+                do_update = not self.is_on and self._sensor_update_reqred
             else:
                 if self.is_on:
                     # If we are running then update sensor according to refresh_interval
@@ -4085,13 +4085,13 @@ class IUSequence(IUBase):
                         or stime - self._sensor_last_update
                         >= self._coordinator.refresh_interval
                     )
-                    do_update |= self._sensor_update_required
+                    do_update |= self._sensor_update_reqred
         else:
             do_update = False
 
         if do_update:
             self._sequence_sensor.schedule_update_ha_state()
-            self._sensor_update_required = False
+            self._sensor_update_reqred = False
             self._sensor_last_update = stime
             updated = True
 
