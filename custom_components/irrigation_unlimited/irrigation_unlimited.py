@@ -2913,7 +2913,7 @@ def build(self, duration_factor: float) -> timedelta:
                                 duration_adjusted,
                                 zone,
                                 IUSequenceZoneRun(
-                                    sequence_zone, sequence_repeat, zone_repeat
+                                    sequence_zone, sequence_repeat, zone_repeat, self._sequence.divide, zone.divide
                                 ),
                             )
                         )
@@ -3887,9 +3887,9 @@ class IUSequence(IUBase):
         """Return the total duration for all the zones"""
         duration = timedelta(0)
         for zone in self._zones:
-             if zone.divide:
+            if zone.divide:
                 duration += self.zone_duration(zone, sqr)
-             else:
+            else:
                 duration += self.zone_duration(zone, sqr) * zone.repeat
         if not self.divide:
             duration *= self._repeat
