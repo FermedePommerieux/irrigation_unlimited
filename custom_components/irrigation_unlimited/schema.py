@@ -10,7 +10,6 @@ from homeassistant.const import (
     CONF_NAME,
     CONF_WEEKDAY,
     CONF_REPEAT,
-    CONF_DIVIDE,
     CONF_DELAY,
     CONF_FOR,
     CONF_UNTIL,
