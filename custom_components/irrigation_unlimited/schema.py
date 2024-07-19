@@ -267,7 +267,7 @@ SEQUENCE_ZONE_SCHEMA = vol.Schema(
         vol.Optional(CONF_DELAY): cv.time_period,
         vol.Optional(CONF_DURATION): cv.positive_time_period,
         vol.Optional(CONF_REPEAT): cv.positive_int,
-        vol.Optional(CONF_DIVIDE): cv.positive_bool,
+        vol.Optional(CONF_DIVIDE): cv.boolean,
         vol.Optional(CONF_ENABLED): cv.boolean,
         vol.Optional(CONF_VOLUME): cv.positive_float,
     }
@@ -285,7 +285,7 @@ SEQUENCE_SCHEMA = vol.Schema(
         vol.Optional(CONF_DELAY): cv.time_period,
         vol.Optional(CONF_DURATION): cv.positive_time_period,
         vol.Optional(CONF_REPEAT): cv.positive_int,
-        vol.Optional(CONF_DIVIDE): cv.positive_bool,
+        vol.Optional(CONF_DIVIDE): cv.boolean,
         vol.Optional(CONF_ENABLED): cv.boolean,
     }
 )
