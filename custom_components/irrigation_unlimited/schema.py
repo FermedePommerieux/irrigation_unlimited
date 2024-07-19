@@ -10,6 +10,7 @@ from homeassistant.const import (
     CONF_NAME,
     CONF_WEEKDAY,
     CONF_REPEAT,
+    CONF_DIVIDE,
     CONF_DELAY,
     CONF_FOR,
     CONF_UNTIL,
@@ -266,6 +267,7 @@ SEQUENCE_ZONE_SCHEMA = vol.Schema(
         vol.Optional(CONF_DELAY): cv.time_period,
         vol.Optional(CONF_DURATION): cv.positive_time_period,
         vol.Optional(CONF_REPEAT): cv.positive_int,
+        vol.Optional(CONF_DIVIDE): cv.positive_int,
         vol.Optional(CONF_ENABLED): cv.boolean,
         vol.Optional(CONF_VOLUME): cv.positive_float,
     }
@@ -283,6 +285,7 @@ SEQUENCE_SCHEMA = vol.Schema(
         vol.Optional(CONF_DELAY): cv.time_period,
         vol.Optional(CONF_DURATION): cv.positive_time_period,
         vol.Optional(CONF_REPEAT): cv.positive_int,
+        vol.Optional(CONF_DIVIDE): cv.positive_int,
         vol.Optional(CONF_ENABLED): cv.boolean,
     }
 )
