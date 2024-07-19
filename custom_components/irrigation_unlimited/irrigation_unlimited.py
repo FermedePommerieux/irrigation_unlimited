@@ -2715,7 +2715,7 @@ class IUSequenceZoneRun(NamedTuple):
     sequence_repeat: int
     zone_repeat: int
     sequence_divide: bool
-    zone_bool: bool
+    zone_divide: bool
 
 
 class IUSequenceRunAllocation(NamedTuple):
