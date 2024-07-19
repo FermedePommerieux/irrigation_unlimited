@@ -2879,8 +2879,8 @@ class IUSequenceRun(IUBase):
                         ):
                             duration_adjusted = zone.adjustment.adjust(duration)
                             duration_adjusted = zone.runs.constrain(duration_adjusted)
-                            if sequence_zone.repeat > 1
-                                duration_adjusted /= sequence_zone.repeat
+                            if sequence_zone.repeat > 0:
+                                duration_adjusted /= (sequence_zone.repeat + 1)
                         else:
                             duration_adjusted = duration
 
