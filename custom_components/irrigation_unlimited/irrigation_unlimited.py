@@ -42,6 +42,7 @@ from homeassistant.const import (
     CONF_ICON,
     CONF_NAME,
     CONF_REPEAT,
+    CONF_DIVIDE,
     CONF_STATE,
     CONF_WEEKDAY,
     EVENT_HOMEASSISTANT_STOP,
