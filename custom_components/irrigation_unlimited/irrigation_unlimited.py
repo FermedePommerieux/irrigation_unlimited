@@ -2913,7 +2913,7 @@ def build(self, duration_factor: float) -> timedelta:
                                 duration_adjusted,
                                 zone,
                                 IUSequenceZoneRun(
-                                    sequence_zone, sequence_repeat, self._sequence.divide, zone_repeat, zone.divide
+                                    sequence_zone, sequence_repeat, zone_repeat
                                 ),
                             )
                         )
