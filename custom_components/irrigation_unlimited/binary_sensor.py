@@ -172,6 +172,8 @@ class IUMasterEntity(IUEntity):
             attr[ATTR_CURRENT_DURATION] = str(current.duration)
             attr[ATTR_TIME_REMAINING] = str(current.time_remaining)
             attr[ATTR_PERCENT_COMPLETE] = current.percent_complete
+            attr["current_sequence_divide"] = current.sequence_divide  # Added
+            attr["current_zone_divide"] = current.zone_divide  # Added
         else:
             attr[ATTR_CURRENT_SCHEDULE] = "deprecated (use current_zone)"
             attr[ATTR_CURRENT_ZONE] = RES_NOT_RUNNING
@@ -183,6 +185,8 @@ class IUMasterEntity(IUEntity):
             attr[ATTR_NEXT_NAME] = next_run.zone.name
             attr[ATTR_NEXT_START] = dt.as_local(next_run.start_time)
             attr[ATTR_NEXT_DURATION] = str(next_run.duration)
+            attr["next_sequence_divide"] = next_run.sequence_divide  # Added
+            attr["next_zone_divide"] = next_run.zone_divide  # Added
         else:
             attr[ATTR_NEXT_SCHEDULE] = "deprecated (use next_zone)"
             attr[ATTR_NEXT_ZONE] = RES_NONE
@@ -335,6 +339,8 @@ class IUSequenceEntity(IUEntity):
             else:
                 attr[ATTR_CURRENT_SCHEDULE] = 0
                 attr[ATTR_CURRENT_NAME] = RES_MANUAL
+            attr["current_sequence_divide"] = current.sequence_divide  # Added
+            attr["current_zone_divide"] = current.zone_divide  # Added
         else:
             attr[ATTR_CURRENT_ZONE] = None
             attr[ATTR_CURRENT_SCHEDULE] = None
@@ -348,6 +354,8 @@ class IUSequenceEntity(IUEntity):
             else:
                 attr[ATTR_NEXT_SCHEDULE] = 0
                 attr[ATTR_NEXT_NAME] = RES_MANUAL
+            attr["next_sequence_divide"] = next_run.sequence_divide  # Added
+            attr["next_zone_divide"] = next_run.zone_divide  # Added
         else:
             attr[ATTR_NEXT_SCHEDULE] = None
         attr[ATTR_ZONES] = self._sequence.ha_zone_attr()
