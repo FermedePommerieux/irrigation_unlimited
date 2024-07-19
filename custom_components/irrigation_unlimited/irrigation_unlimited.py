@@ -2714,8 +2714,6 @@ class IUSequenceZoneRun(NamedTuple):
     sequence_zone: IUSequenceZone
     sequence_repeat: int
     zone_repeat: int
-    sequence_divide: bool
-    zone_divide: bool
 
 
 class IUSequenceRunAllocation(NamedTuple):
@@ -2913,7 +2911,7 @@ def build(self, duration_factor: float) -> timedelta:
                                 duration_adjusted,
                                 zone,
                                 IUSequenceZoneRun(
-                                    sequence_zone, sequence_repeat, zone_repeat, self._sequence.divide, zone.divide
+                                    sequence_zone, sequence_repeat, zone_repeat
                                 ),
                             )
                         )
