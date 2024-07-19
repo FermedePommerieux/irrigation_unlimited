@@ -2880,7 +2880,7 @@ class IUSequenceRun(IUBase):
                 delay = self._sequence.zone_delay(sequence_zone, self)
 
                 # Adjust duration based on the sequence divide attribute
-                if self._sequence.divide:
+                if sequence_repeat.divide:
                     duration /= (sequence_repeat)
                 else:
                     duration *= (sequence_repeat + 1)
@@ -2896,7 +2896,7 @@ class IUSequenceRun(IUBase):
                         if not self.is_manual() and not self._sequence.has_adjustment(True):
                             duration_adjusted = zone.adjustment.adjust(duration)
                             duration_adjusted = zone.runs.constrain(duration_adjusted)
-                            if self._zone.divide:
+                            if zone.divide:
                                 duration.adjusted /= (sequence_repeat)
                         else:
                             duration_adjusted = duration
@@ -3829,7 +3829,7 @@ class IUSequence(IUBase):
         if len(self._zones) > 0:
             for zone in self._zones:
                 if self.zone_enabled(zone, sqr):
-                    if self._zone.divide:
+                    if zone.divide:
                         delay += self.zone_delay(zone, sqr)
                     else:
                         delay += self.zone_delay(zone, sqr) * zone.repeat
@@ -3884,7 +3884,7 @@ class IUSequence(IUBase):
         """Return the total duration for all the zones"""
         duration = timedelta(0)
         for zone in self._zones:
-             if self._zone.divide:
+             if zone.divide:
                 duration += self.zone_duration(zone, sqr)
              else:
                 duration += self.zone_duration(zone, sqr) * zone.repeat
