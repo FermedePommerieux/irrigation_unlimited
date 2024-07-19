@@ -2865,66 +2865,69 @@ class IUSequenceRun(IUBase):
             return self._sequence.total_time_final(total_time, self)
         return total_time
 
-    def build(self, duration_factor: float) -> timedelta:
-        """Build out the sequence. Pre allocate runs and determine the duration"""
-        # pylint: disable=too-many-nested-blocks
-        next_run = self._start_time = self._end_time = wash_dt(dt.utcnow())
-        for sequence_repeat in range(self._sequence.repeat):
-            for sequence_zone in self._sequence.zones:
-                if not self._sequence.zone_enabled(sequence_zone, self):
-                    continue
-                duration = self._sequence.zone_duration_final(
-                    sequence_zone, duration_factor, self
-                )
-                duration_max = timedelta(0)
-                delay = self._sequence.zone_delay(sequence_zone, self)
+def build(self, duration_factor: float) -> timedelta:
+    """Build out the sequence. Pre-allocate runs and determine the duration"""
+    # pylint: disable=too-many-nested-blocks
+    next_run = self._start_time = self._end_time = wash_dt(dt.utcnow())
+    for sequence_repeat in range(self._sequence.repeat):
+        for sequence_zone in self._sequence.zones:
+            if not self._sequence.zone_enabled(sequence_zone, self):
+                continue
+            duration = self._sequence.zone_duration_final(
+                sequence_zone, duration_factor, self
+            )
+            duration_max = timedelta(0)
+            delay = self._sequence.zone_delay(sequence_zone, self)
 
-                # Adjust duration based on the sequence divide attribute
-                if sequence_repeat.divide:
-                    duration /= (sequence_repeat)
-                else:
-                    duration *= (sequence_repeat + 1)
+            # Adjust duration based on the sequence divide attribute
+            if self._sequence.divide:
+                duration /= (sequence_repeat + 1)
+            else:
+                duration *= (sequence_repeat + 1)
 
-                # Multiply delay by the repeat count
-                delay *= (sequence_repeat + 1)
+            # Multiply delay by the repeat count
+            delay *= (sequence_repeat + 1)
 
-                for zone in sequence_zone.zones:
-                    if self.zone_enabled(zone):
-                        # Don't adjust manual run and no adjustment on adjustment
-                        # This code should not really be here. It would be a breaking
-                        # change if removed.
-                        if not self.is_manual() and not self._sequence.has_adjustment(True):
-                            duration_adjusted = zone.adjustment.adjust(duration)
-                            duration_adjusted = zone.runs.constrain(duration_adjusted)
-                            if zone.divide:
-                                duration.adjusted /= (sequence_repeat)
+            for zone in sequence_zone.zones:
+                if self.zone_enabled(zone):
+                    # Don't adjust manual run and no adjustment on adjustment
+                    # This code should not really be here. It would be a breaking
+                    # change if removed.
+                    if not self.is_manual() and not self._sequence.has_adjustment(True):
+                        duration_adjusted = zone.adjustment.adjust(duration)
+                        duration_adjusted = zone.runs.constrain(duration_adjusted)
+                    else:
+                        duration_adjusted = duration
+
+                    zone_run_time = next_run
+                    for zone_repeat in range(sequence_zone.repeat):
+                        # Adjust duration based on the zone divide attribute
+                        if zone.divide:
+                            duration_adjusted /= (zone_repeat + 1)
                         else:
-                            duration_adjusted = duration
+                            duration_adjusted *= (zone_repeat + 1)
 
-                        zone_run_time = next_run
-                        for zone_repeat in range(sequence_zone.repeat):
-                            # No need to adjust duration per zone repeat, only delay if needed
-                            self._runs_pre_allocate.append(
-                                IUSequenceRunAllocation(
-                                    zone_run_time,
-                                    duration_adjusted,
-                                    zone,
-                                    IUSequenceZoneRun(
-                                        sequence_zone, sequence_repeat, zone_repeat
-                                    ),
-                                )
+                        self._runs_pre_allocate.append(
+                            IUSequenceRunAllocation(
+                                zone_run_time,
+                                duration_adjusted,
+                                zone,
+                                IUSequenceZoneRun(
+                                    sequence_zone, sequence_repeat, self._sequence.divide, zone_repeat, zone.divide
+                                ),
                             )
-                            if self._first_zone is None:
-                                self._first_zone = zone
-                            if zone_run_time + duration_adjusted > self._end_time:
-                                self._end_time = zone_run_time + duration_adjusted
-                            zone_run_time += duration_adjusted + delay
-                        duration_max = max(duration_max, zone_run_time - next_run)
-                next_run += duration_max
+                        )
+                        if self._first_zone is None:
+                            self._first_zone = zone
+                        if zone_run_time + duration_adjusted > self._end_time:
+                            self._end_time = zone_run_time + duration_adjusted
+                        zone_run_time += duration_adjusted + delay
+                    duration_max = max(duration_max, zone_run_time - next_run)
+            next_run += duration_max
 
+    self._remaining_time = self._end_time - self._start_time
+    return self._remaining_time
 
-        self._remaining_time = self._end_time - self._start_time
-        return self._remaining_time
 
     def allocate_runs(self, stime: datetime, start_time: datetime) -> None:
         """Allocate runs"""
