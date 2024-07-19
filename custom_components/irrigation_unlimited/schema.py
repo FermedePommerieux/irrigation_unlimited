@@ -93,6 +93,7 @@ from .const import (
     CONF_USER,
     CONF_TOGGLE,
     CONF_EXTENDED_CONFIG,
+    CONF_DIVIDE,
 )
 
 IU_ID = r"^[a-z0-9]+(_[a-z0-9]+)*$"
